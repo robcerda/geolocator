@@ -11,10 +11,7 @@
     }
   },
   "permissions": [
-    "geolocation",
-    "downloads",
-    "scripting",
-    "tabs"
+    "geolocation"
   ],
   "background": {
     "service_worker": "background.js"

