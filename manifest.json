@@ -10,9 +10,16 @@
       "128": "icon128.png"
     }
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
   "permissions": [
     "geolocation",
-    "identity.email"
+    "identity",
+    "alarms"
   ],
   "background": {
     "service_worker": "background.js"

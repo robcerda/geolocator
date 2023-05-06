@@ -25,17 +25,14 @@ document.getElementById('getLocation').addEventListener('click', async () => {
       city,
       state,
       country,
-      email: userEmail,
     };
 
-    // Send location data to the remote server
-    await fetch(serverURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(locationInfo),
-    });
+    if (userEmail) {
+      locationInfo.email = userEmail;
+    }
+
+    // Send a message to the background script with the location data
+    chrome.runtime.sendMessage({ locationInfo });
 
   } catch (error) {
     console.error('Failed to fetch location:', error);
