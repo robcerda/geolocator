@@ -1,5 +1,3 @@
-let timerId = null;
-
 // Function to get geolocation data
 function getGeoLocation() {
     if (!navigator.geolocation){
@@ -15,17 +13,16 @@ function getGeoLocation() {
         fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
             .then(response => response.json())
             .then(data => {
-                const locationText = `Latitude: ${latitude} °, Longitude: ${longitude} °, Accuracy: ${accuracy} m, State: ${data.principalSubdivision}, Country: ${data.countryName}`;
-                const state = data.principalSubdivision;
-                const country = data.countryName;
-
-                saveToLocalFile({
+                const locationObj = {
                     latitude,
                     longitude,
                     accuracy,
-                    state,
-                    country
-                });
+                    city: data.city,
+                    state: data.principalSubdivision,
+                    country: data.countryName
+                };
+
+                saveToLocalFile(locationObj);
             })
             .catch(error => console.error('Error:', error));
     }
@@ -39,19 +36,26 @@ function getGeoLocation() {
 
 // Function to save geolocation data to a local file
 function saveToLocalFile(location) {
-    const textToSave = `Latitude: ${location.latitude}, Longitude: ${location.longitude}, Accuracy: ${location.accuracy}, State: ${location.state}, Country: ${location.country}\n`;
-    const blob = new Blob([textToSave], {type: 'text/plain'});
+    const textToSave = JSON.stringify(location) + '\n';
+    const blob = new Blob([textToSave], {type: 'application/json'});
     const fileURL = URL.createObjectURL(blob);
     
     chrome.downloads.download({
         url: fileURL,
-        filename: 'location.txt',
+        filename: 'location.json',
         conflictAction: 'overwrite'
     });
 }
 
-// Start reporting when the extension is installed or updated
-chrome.runtime.onInstalled.addListener(() => {
+// Start reporting on browser startup
+chrome.runtime.onStartup.addListener(() => {
     getGeoLocation();
-    timerId = setInterval(getGeoLocation, 5000);  // Adjust the interval as needed
+});
+
+// Start reporting at an interval
+chrome.alarms.create('locationAlarm', { periodInMinutes: 5 });
+chrome.alarms.onAlarm.addListener(alarm => {
+    if (alarm.name === 'locationAlarm') {
+        getGeoLocation();
+    }
 });

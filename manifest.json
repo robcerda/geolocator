@@ -3,7 +3,7 @@
   "name": "Accurate Geolocation",
   "version": "1.0",
   "description": "Get the user's accurate geolocation",
-  "permissions": ["geolocation", "downloads"],
+  "permissions": ["geolocation", "downloads", "alarms"],
   "background": {
     "service_worker": "background.js"
   },
