@@ -3,7 +3,10 @@
   "name": "Accurate Geolocation",
   "version": "1.0",
   "description": "Get the user's accurate geolocation",
-  "permissions": ["geolocation", "tabs", "activeTab", "alarms"],
+  "permissions": ["geolocation", "downloads"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

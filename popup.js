@@ -1,66 +1,70 @@
-console.log("Popup script loaded");
+let timerId = null;
 
-function updateLocation(location) {
-  document.getElementById('location').innerText = location;
+// Function to get geolocation data
+function getGeoLocation() {
+    if (!navigator.geolocation){
+        console.log("Geolocation is not supported by your browser");
+        return;
+    }
+
+    function success(position) {
+        const latitude  = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
+            .then(response => response.json())
+            .then(data => {
+                const locationText = `Latitude: ${latitude} °, Longitude: ${longitude} °, Accuracy: ${accuracy} m, State: ${data.principalSubdivision}, Country: ${data.countryName}`;
+                const state = data.principalSubdivision;
+                const country = data.countryName;
+
+                const locationData = {
+                    latitude,
+                    longitude,
+                    accuracy,
+                    state,
+                    country
+                };
+
+                downloadData(locationData);
+                updateLocation(locationText);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function error() {
+        console.log("Unable to retrieve your location");
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error);
 }
 
-async function fetchStateAndCountry(latitude, longitude) {
-  const url = 
-`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const state = data.address.state;
-    const country = data.address.country;
-    return { state, country };
-  } catch (error) {
-    console.error('Error fetching state and country:', error);
-    return { state: 'Unknown', country: 'Unknown' };
-  }
-}
-
-async function fetchLocation() {
-  if (!navigator.geolocation) {
-    updateLocation('Geolocation is not supported by your browser.');
-    return;
-  }
-
-  function success(position) {
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-    const accuracy = position.coords.accuracy;
-
-    fetchStateAndCountry(latitude, longitude).then(({ state, country }) => 
-{
-      const locationText = `Latitude: ${latitude}\nLongitude: 
-${longitude}\nAccuracy: ${accuracy} meters\nState: ${state}\nCountry: 
-${country}`;
-      updateLocation(locationText);
+// Function to create and download a file with the location data
+function downloadData(data) {
+    const blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
+    const url = URL.createObjectURL(blob);
+    chrome.downloads.download({
+        url: url,
+        filename: 'location_data.json'
     });
-  }
-
-  function error(err) {
-    console.log(err);
-    updateLocation('Unable to retrieve your location.');
-  }
-
-  navigator.geolocation.getCurrentPosition(success, error, {
-    enableHighAccuracy: true,
-    maximumAge: 0
-  });
 }
 
-// Fetch the location initially
-fetchLocation();
+// Function to update location in the popup
+function updateLocation(locationText) {
+    const locationElement = document.getElementById('location');
+    locationElement.textContent = locationText;
+}
 
-// Create an alarm to fetch the location every minute (60000 ms)
-chrome.alarms.create("fetchLocation", { periodInMinutes: 1 });
+// Function to handle getLocation button click
+function startReporting() {
+    if (timerId) {
+        return;
+    }
 
-// Listen for the alarm event and fetch the location when the alarm is triggered
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "fetchLocation") {
-    fetchLocation();
-  }
-});
+    getGeoLocation();
+    timerId = setInterval(getGeoLocation, 5000);  // Adjust the interval as needed
+}
 
+// Add event listener to getLocation button
+document.getElementById('getLocation').addEventListener('click', startReporting);
