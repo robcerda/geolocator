@@ -11,7 +11,8 @@
     }
   },
   "permissions": [
-    "geolocation"
+    "geolocation",
+    "identity.email"
   ],
   "background": {
     "service_worker": "background.js"
