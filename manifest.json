@@ -1,12 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Accurate Geolocation",
+  "name": "GeoLocation Extension",
   "version": "1.0",
-  "description": "Get the user's accurate geolocation",
-  "permissions": ["geolocation", "downloads", "alarms"],
-  "background": {
-    "service_worker": "background.js"
-  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -15,9 +10,13 @@
       "128": "icon128.png"
     }
   },
-  "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+  "permissions": [
+    "geolocation",
+    "downloads",
+    "scripting",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
   }
 }
