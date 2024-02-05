@@ -1,7 +1,7 @@
-const serverURL = 'https://crisscrossapplesauce.wl.r.appspot.com/geolocation';
+const serverURL = 'https://script.google.com/macros/s/AKfycbyOfWynyBsjhuad7aaGifstsXe57SChLp4-ATKO_2-BfAvfw-DGPdZPFSHzITJ5iKpC/exec';
 const intervalInMinutes = 1;
 
-// Function to send location data to the remote server
+// Function to send location data to the Google Apps Script web app
 async function sendLocation(locationInfo) {
   try {
     await fetch(serverURL, {

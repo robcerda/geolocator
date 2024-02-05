@@ -1,4 +1,4 @@
-const serverURL = 'https://crisscrossapplesauce.wl.r.appspot.com/geolocation';
+const serverURL = 'https://script.google.com/macros/s/AKfycbyOfWynyBsjhuad7aaGifstsXe57SChLp4-ATKO_2-BfAvfw-DGPdZPFSHzITJ5iKpC/exec';
 
 document.getElementById('getLocation').addEventListener('click', async () => {
   try {
