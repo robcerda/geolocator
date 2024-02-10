@@ -18,6 +18,7 @@ document.getElementById('getLocation').addEventListener('click', async () => {
     const city = locationData.address.city || locationData.address.town || locationData.address.village;
     const state = locationData.address.state;
     const country = locationData.address.country;
+    const userAgent = navigator.userAgent; // Getting the user agent
 
     const locationInfo = {
       latitude,
@@ -25,11 +26,9 @@ document.getElementById('getLocation').addEventListener('click', async () => {
       city,
       state,
       country,
+      userAgent, // Assuming this is already added
+      email: userEmail, // Include the user's email here
     };
-
-    if (userEmail) {
-      locationInfo.email = userEmail;
-    }
 
     // Send a message to the background script with the location data
     chrome.runtime.sendMessage({ locationInfo });

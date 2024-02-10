@@ -16,6 +16,27 @@ async function sendLocation(locationInfo) {
   }
 }
 
+// Function to fetch user's email and then send location data
+async function fetchUserInfoAndSendLocation(locationInfo) {
+  chrome.identity.getProfileUserInfo(userInfo => {
+    console.log("User Info:", userInfo); // This will log the fetched user information
+    if (userInfo.email) {
+      console.log("Email fetched successfully:", userInfo.email);
+    } else {
+      console.log("Email not available.");
+    }
+    if (userInfo.email) {
+      locationInfo.email = userInfo.email;
+    }
+
+    // Add user agent to the locationInfo
+    locationInfo.userAgent = navigator.userAgent;
+
+    // Now send the enriched locationInfo to the server
+    sendLocation(locationInfo);
+  });
+}
+
 // Receive the message from the content script and process the location data
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.location) {
@@ -33,9 +54,12 @@ chrome.runtime.onMessage.addListener(async (message) => {
       city,
       state,
       country,
+      // userAgent is added in fetchUserInfoAndSendLocation
+      // email will be added if available in fetchUserInfoAndSendLocation
     };
 
-    sendLocation(locationInfo);
+    // Fetch user info (including email) and then send location data
+    fetchUserInfoAndSendLocation(locationInfo);
   }
 });
 
